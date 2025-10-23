@@ -1,4 +1,4 @@
-# Newsletter service
+# Infernus Presence Newsletter Service
 
 Этот сервис предназначен для сайта музыкальной группы Infernus Presence.
 
