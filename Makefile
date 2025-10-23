@@ -1,4 +1,4 @@
-.PHONY: build run test clean docker-build docker-up docker-down migrate-up migrate-down
+.PHONY: build run test clean migrate-up migrate-down
 
 build:
 	go build -o bin/main cmd/api/main.go
@@ -11,18 +11,6 @@ test:
 
 clean:
 	rm -rf bin/
-
-docker-build:
-	docker-compose build
-
-docker-up:
-	docker-compose up -d
-
-docker-down:
-	docker-compose down
-
-docker-logs:
-	docker-compose logs -f
 
 migrate-up:
 	migrate -path migrations -database "mysql://newsletter_user:newsletter_password@tcp(localhost:3306)/newsletter" up
