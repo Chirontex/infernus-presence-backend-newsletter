@@ -10,7 +10,7 @@
 - ✅ Валидация email-адреса
 - ✅ Аутентификация клиента по токену
 - ✅ MariaDB с миграциями
-- ✅ Поддержка Docker
+- ✅ Поддержка Docker (Docker Compose вынесен в отдельный репозиторий)
 - ✅ Чистая архитектура (обработчики, сервисы, репозитории)
 - ✅ Middleware (логирование, восстановление после ошибок, CORS)
 - ✅ Корректное завершение работы
@@ -23,7 +23,7 @@
 - **База данных**: MariaDB 11.5
 - **Роутер**: Gorilla Mux
 - **Миграции**: golang-migrate
-- **Контейнеризация**: Docker и Docker Compose
+- **Контейнеризация**: Docker
 
 ## Структура проекта
 
@@ -43,7 +43,6 @@ newsletter-backend/
 │   ├── service/                   # Бизнес-логика
 │   └── validator/                 # Валидация входных данных
 ├── migrations/                    # Миграции БД
-├── docker-compose.yml             # Конфигурация Docker Compose
 ├── Dockerfile                     # Описание Docker-образа
 ├── go.mod                         # Зависимости Go
 └── Makefile                       # Автоматизация сборки
@@ -89,68 +88,32 @@ newsletter-backend/
 
 ## Быстрый старт с Docker
 
-### Требования
+Для быстрого старта с использованием Docker Compose используйте отдельный репозиторий инфраструктуры, где находится актуальный `docker-compose.yml` и инструкции по запуску всего стека.
 
-- Docker
-- Docker Compose
+### Запуск через Docker (без Compose)
 
-### Шаг 1: Клонируйте или распакуйте проект
-
-```bash
-cd newsletter-backend
-```
-
-### Шаг 2: Настройте окружение
-
-Отредактируйте `docker-compose.yml` и задайте `CLIENT_TOKEN`:
-
-```yaml
-environment:
-  CLIENT_TOKEN: "your-secret-client-token-here"  # Измените это!
-```
-
-### Шаг 3: Запустите приложение
+1. Соберите образ:
 
 ```bash
-docker-compose up -d
+docker build -t newsletter-backend:latest .
 ```
 
-Это:
-- Запустит контейнер MariaDB
-- Соберёт и запустит Go-приложение
-- Автоматически применит миграции
-- Откроет API на `http://localhost:8080`
-
-### Шаг 4: Проверьте API
+2. Запустите контейнер, передав переменные окружения:
 
 ```bash
-curl -X POST http://localhost:8080/api/newsletter/subscribe \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "clientToken": "your-secret-client-token-here"
-  }'
+docker run -d \
+  -p 8080:8080 \
+  -e CLIENT_TOKEN="your-secret-token" \
+  -e DB_HOST="your-db-host" \
+  -e DB_USER="your-db-user" \
+  -e DB_PASSWORD="your-db-password" \
+  -e DB_NAME="newsletter" \
+  newsletter-backend:latest
 ```
 
-### Шаг 5: Просмотр логов
+> **Примечание:** Контейнер базы данных MariaDB и миграции должны быть запущены отдельно. Используйте внешний репозиторий с docker-compose или настройте БД вручную.
 
-```bash
-docker-compose logs -f app
-```
-
-### Остановить приложение
-
-```bash
-docker-compose down
-```
-
-Для удаления томов:
-
-```bash
-docker-compose down -v
-```
-
-## Локальная разработка (без Docker)
+## Локальная разработка (без Docker Compose)
 
 ### Требования
 
@@ -227,16 +190,9 @@ make clean
 
 # Сборка Docker-образа
 make docker-build
-
-# Запуск контейнеров Docker
-make docker-up
-
-# Остановка контейнеров Docker
-make docker-down
-
-# Просмотр логов Docker
-make docker-logs
 ```
+
+> **Примечание:** Команды для управления контейнерами через docker-compose удалены. Используйте внешний репозиторий с инфраструктурой для orchestration.
 
 ## Схема базы данных
 
@@ -287,6 +243,8 @@ docker run -d \
   -e DB_NAME="newsletter" \
   newsletter-backend:latest
 ```
+
+> **Примечание:** Для orchestration используйте внешний репозиторий с docker-compose или настройте инфраструктуру самостоятельно.
 
 ### Деплой через Kubernetes
 
@@ -386,34 +344,17 @@ curl -X POST http://localhost:8080/api/newsletter/subscribe \
 
 ### Нет подключения к базе данных
 
-Проверьте, что база данных запущена:
-```bash
-docker-compose ps
-```
-
-Проверьте логи базы данных:
-```bash
-docker-compose logs db
-```
+Проверьте, что база данных запущена и доступна. Если вы используете внешний docker-compose репозиторий — проверьте его логи и статус контейнеров.
 
 ### Миграции не применились
 
-Ручной запуск миграций:
-```bash
-docker-compose exec app ./main
-```
-
-Или подключитесь к базе и выполните SQL вручную:
-```bash
-docker-compose exec db mysql -u newsletter_user -p newsletter
-```
+Запустите приложение повторно или примените миграции вручную с помощью golang-migrate.
 
 ### Порт уже занят
 
-Измените порт в `docker-compose.yml`:
-```yaml
-ports:
-  - "8081:8080"  # Используйте другой порт хоста
+Измените порт в переменных окружения или при запуске контейнера:
+```bash
+docker run -d -p 8081:8080 ...
 ```
 
 ## Лицензия
