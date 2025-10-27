@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-
-	"newsletter-backend/internal/models"
 )
 
 type NewsletterRepository interface {

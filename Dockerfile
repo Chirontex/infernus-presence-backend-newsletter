@@ -5,6 +5,11 @@ WORKDIR /app
 # Install dependencies
 RUN apk add --no-cache git
 
+# Set Go environment variables
+ENV GOPROXY=https://goproxy.io,direct
+ENV GONOPROXY=none
+ENV GONOSUMDB=*
+
 # Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download

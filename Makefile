@@ -13,9 +13,11 @@ clean:
 	rm -rf bin/
 
 migrate-up:
-	migrate -path migrations -database "mysql://newsletter_user:newsletter_password@tcp(localhost:3306)/newsletter" up
+	@set -a; . ../../compose/.env; set +a; \
+	migrate -path migrations -database "mysql://$${NEWSLETTER_DB_USER}:$${NEWSLETTER_DB_PASSWORD}@tcp($${NEWSLETTER_DB_HOST}:$${NEWSLETTER_DB_PORT})/$${NEWSLETTER_DB_NAME}" up
 
 migrate-down:
-	migrate -path migrations -database "mysql://newsletter_user:newsletter_password@tcp(localhost:3306)/newsletter" down
+	@set -a; . ../../compose/.env; set +a; \
+	migrate -path migrations -database "mysql://$${NEWSLETTER_DB_USER}:$${NEWSLETTER_DB_PASSWORD}@tcp($${NEWSLETTER_DB_HOST}:$${NEWSLETTER_DB_PORT})/$${NEWSLETTER_DB_NAME}" down
 
 .DEFAULT_GOAL := build
