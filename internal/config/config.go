@@ -26,19 +26,31 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	cfg := &Config{
-		ServerAddress: getEnv("SERVER_ADDRESS", ":8080"),
+		ServerAddress: getEnv("SERVER_ADDRESS", ""),
 		ClientToken:   getEnv("CLIENT_TOKEN", ""),
 		Database: DatabaseConfig{
 			Host:     getEnv("DB_HOST", "localhost"),
 			Port:     getEnv("DB_PORT", "3306"),
-			User:     getEnv("DB_USER", "root"),
+			User:     getEnv("DB_USER", ""),
 			Password: getEnv("DB_PASSWORD", ""),
-			Database: getEnv("DB_NAME", "newsletter"),
+			Database: getEnv("DB_NAME", ""),
 		},
 	}
 
 	if cfg.ClientToken == "" {
 		return nil, fmt.Errorf("CLIENT_TOKEN is required")
+	}
+	if cfg.ServerAddress == "" {
+		return nil, fmt.Errorf("SERVER_ADDRESS is required")
+	}
+	if cfg.Database.User == "" {
+		return nil, fmt.Errorf("DB_USER is required")
+	}
+	if cfg.Database.Password == "" {
+		return nil, fmt.Errorf("DB_PASSWORD is required")
+	}
+	if cfg.Database.Database == "" {
+		return nil, fmt.Errorf("DB_NAME is required")
 	}
 
 	return cfg, nil
